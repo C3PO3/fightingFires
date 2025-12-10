@@ -136,17 +136,20 @@ class PersonDetector:
         
         return tracked_persons
     
-    def pixel_to_world_coordinates(self, pixel_coords, depth=None, camera_height=2.0):
+    def pixel_to_camera_relative_coordinates(self, pixel_coords, depth=None):
         """
-        Convert pixel coordinates to world coordinates
+        Convert pixel coordinates to camera-relative coordinates.
+        Camera wearer is at origin (0, 0, 0).
         
         Args:
-            pixel_coords: (x, y) in pixels
+            pixel_coords: (x, y) in pixels (feet position)
             depth: Distance from camera (meters) - from LiDAR if available
-            camera_height: Height of camera above ground (meters)
         
         Returns:
-            (x, y, z) in world coordinates (meters)
+            (x, y, z) where:
+            - x: lateral distance (meters, + is right, - is left)
+            - y: forward distance (meters, + is forward)
+            - z: 0 (assuming same floor level as camera wearer)
         """
         if depth is None:
             # Estimate depth using simple pinhole camera model
@@ -155,61 +158,67 @@ class PersonDetector:
         
         x_pixel, y_pixel = pixel_coords
         
-        # Undistort pixel coordinates
-        pixel_array = np.array([[[x_pixel, y_pixel]]], dtype=np.float32)
-        undistorted = cv2.undistortPoints(
-            pixel_array, 
-            self.camera_matrix, 
-            self.dist_coeffs,
-            P=self.camera_matrix
-        )[0][0]
-        
-        # Convert to normalized camera coordinates
+        # Get camera parameters
         fx = self.camera_matrix[0, 0]
         fy = self.camera_matrix[1, 1]
         cx = self.camera_matrix[0, 2]
         cy = self.camera_matrix[1, 2]
         
-        # Calculate 3D position
-        x_world = (undistorted[0] - cx) * depth / fx
-        y_world = (undistorted[1] - cy) * depth / fy
-        z_world = depth
+        # Calculate angle from camera center
+        # Horizontal angle (left/right)
+        angle_x = np.arctan((x_pixel - cx) / fx)
         
-        return (x_world, y_world, z_world)
+        # Calculate camera-relative position
+        # Forward distance (depth along camera viewing direction)
+        y_relative = depth * np.cos(angle_x)
+        
+        # Lateral distance (left/right from camera)
+        x_relative = depth * np.sin(angle_x)
+        
+        # Z is 0 (same floor level)
+        z_relative = 0.0
+        
+        return (float(x_relative), float(y_relative), float(z_relative))
     
-    def map_to_lidar_coordinates(self, persons, lidar_transform=None):
+    def map_to_camera_relative_coordinates(self, persons, lidar_depth_map=None):
         """
-        Map detected persons to LiDAR coordinate system
+        Map detected persons to camera-relative coordinate system.
+        Camera wearer is at origin (0, 0, 0).
         
         Args:
             persons: List of tracked persons from detect_and_track()
-            lidar_transform: 4x4 transformation matrix from camera to LiDAR frame
+            lidar_depth_map: Optional function that takes pixel coords and returns depth
+                            e.g., lidar_depth_map(pixel_x, pixel_y) -> depth_meters
         
         Returns:
-            persons with added 'world_coords' field
+            persons with added 'camera_relative_coords' field:
+            {
+                'x': float,  # meters, + is right, - is left
+                'y': float,  # meters, + is forward (away from camera)
+                'z': 0.0     # always 0 (same floor level)
+            }
         """
-        if lidar_transform is None:
-            # Identity transform (assumes camera and LiDAR aligned)
-            lidar_transform = np.eye(4)
-        
         for person in persons:
             # Use bottom center (feet) for ground position
             pixel_pos = person['bottom_center']
             
-            # TODO: Get actual depth from LiDAR point cloud
-            depth = 5.0  # Placeholder
+            # Get depth from LiDAR if available
+            if lidar_depth_map is not None:
+                try:
+                    depth = lidar_depth_map(pixel_pos[0], pixel_pos[1])
+                except Exception as e:
+                    print(f"Warning: LiDAR depth lookup failed: {e}")
+                    depth = None
+            else:
+                depth = None  # Will use default depth estimation
             
-            # Convert to world coordinates
-            world_pos = self.pixel_to_world_coordinates(pixel_pos, depth)
+            # Convert to camera-relative coordinates
+            camera_rel_pos = self.pixel_to_camera_relative_coordinates(pixel_pos, depth)
             
-            # Transform to LiDAR frame
-            world_homogeneous = np.array([*world_pos, 1.0])
-            lidar_pos = (lidar_transform @ world_homogeneous)[:3]
-            
-            person['world_coords'] = {
-                'x': float(lidar_pos[0]),
-                'y': float(lidar_pos[1]),
-                'z': float(lidar_pos[2])
+            person['camera_relative_coords'] = {
+                'x': camera_rel_pos[0],  # Lateral (left/right)
+                'y': camera_rel_pos[1],  # Forward distance
+                'z': camera_rel_pos[2]   # Always 0
             }
         
         return persons
@@ -238,10 +247,13 @@ class PersonDetector:
             cv2.circle(display_frame, bottom, 5, (0, 255, 255), -1)
             
             # Draw label
+            conf = person.get('confidence', 0.0)
+            if conf is None:
+                conf = 0.0
             label = f"ID:{track_id} {conf:.2f}"
-            if 'world_coords' in person:
-                wc = person['world_coords']
-                label += f" ({wc['x']:.1f}, {wc['y']:.1f})"
+            if 'camera_relative_coords' in person:
+                coords = person['camera_relative_coords']
+                label += f" ({coords.get('x', 0):.1f}m, {coords.get('y', 0):.1f}m)"
             
             # Text background
             (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
@@ -253,7 +265,13 @@ class PersonDetector:
     
     def _get_track_color(self, track_id):
         """Generate consistent color for each track ID"""
-        np.random.seed(track_id)
+        # Convert track_id to int if it's a string
+        try:
+            seed = int(track_id) if isinstance(track_id, str) else track_id
+        except (ValueError, TypeError):
+            seed = hash(str(track_id)) % (2**32)  # Fallback to hash
+        
+        np.random.seed(seed)
         return tuple(np.random.randint(0, 255, 3).tolist())
     
     def get_performance_stats(self):

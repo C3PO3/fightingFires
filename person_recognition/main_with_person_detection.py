@@ -1,13 +1,45 @@
 """
 main_with_person_detection.py
+Location: person_recognition/main_with_person_detection.py
 Integrates person detection into your existing optimized pipeline
 Press 'q' to quit, 'e' to toggle edges, 'p' to pause, 'd' to toggle detection
 """
 import sys
 import os
-from mock_rgb_optimized import Rgb_Handler
-from mock_thermal_optimized import Thermal_Handler
-from person_detection_module import PersonDetector
+
+# Add current_optimization_tests directory to path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+current_optimization_tests_path = os.path.join(parent_dir, 'current_optimization_tests')
+
+# Verify the path exists
+if not os.path.exists(current_optimization_tests_path):
+    print(f"ERROR: Cannot find current_optimization_tests folder at: {current_optimization_tests_path}")
+    print(f"Current directory: {current_dir}")
+    print(f"Parent directory: {parent_dir}")
+    print("\nExpected folder structure:")
+    print("  project_root/")
+    print("  ├── current_optimization_tests/")
+    print("  │   ├── mock_rgb_optimized.py")
+    print("  │   └── mock_thermal_optimized.py")
+    print("  └── person_recognition/")
+    print("      ├── main_with_person_detection.py (this file)")
+    print("      └── person_detection_module.py")
+    sys.exit(1)
+
+sys.path.insert(0, current_optimization_tests_path)
+
+try:
+    from mock_rgb_optimized import Rgb_Handler
+    from mock_thermal_optimized import Thermal_Handler
+    from person_detection_module import PersonDetector
+except ImportError as e:
+    print(f"ERROR: Failed to import required modules: {e}")
+    print(f"\nMake sure these files exist:")
+    print(f"  - {os.path.join(current_optimization_tests_path, 'mock_rgb_optimized.py')}")
+    print(f"  - {os.path.join(current_optimization_tests_path, 'mock_thermal_optimized.py')}")
+    print(f"  - {os.path.join(current_dir, 'person_detection_module.py')}")
+    sys.exit(1)
 import cv2
 import time
 import numpy as np
@@ -169,9 +201,11 @@ class Data_Collector():
             detection_start = time.time()
             self.current_persons = self.person_detector.detect_and_track(rgb_frame)
             
-            # Map to world coordinates (integrate with LiDAR here)
-            self.current_persons = self.person_detector.map_to_lidar_coordinates(
-                self.current_persons
+            # Map to camera-relative coordinates
+            # TODO: Replace None with actual LiDAR depth lookup function
+            self.current_persons = self.person_detector.map_to_camera_relative_coordinates(
+                self.current_persons,
+                lidar_depth_map=None  # Will use default depth estimation
             )
             detection_time = (time.time() - detection_start) * 1000
             
@@ -179,10 +213,16 @@ class Data_Collector():
             if self.current_persons and self.frame_counter % 30 == 0:  # Print every 30 frames
                 print(f"\n--- Detected {len(self.current_persons)} person(s) ---")
                 for p in self.current_persons:
-                    wc = p.get('world_coords', {})
+                    coords = p.get('camera_relative_coords', {})
+                    conf = p.get('confidence', 0.0)
+                    if conf is None:
+                        conf = 0.0
+                    x = coords.get('x', 0)
+                    y = coords.get('y', 0)
+                    direction = "right" if x > 0 else "left"
                     print(f"  ID {p['track_id']}: "
-                          f"Pos({wc.get('x', 0):.2f}, {wc.get('y', 0):.2f}, {wc.get('z', 0):.2f}) "
-                          f"Conf: {p['confidence']:.2f}")
+                          f"{abs(x):.2f}m {direction}, {y:.2f}m forward | "
+                          f"Conf: {conf:.2f}")
         
         # Draw detections on RGB frame
         if self.enable_detection and self.current_persons:
