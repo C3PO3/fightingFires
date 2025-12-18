@@ -1,5 +1,10 @@
 # README
 
+## Running tests
+These tests expect you to be in the root folder so inside fightingFires
+ - to run edge detect: python current_optimization_tests\current_main.py
+ - to run edge detect with person detection: python person_recognition\main_with_person_detection.py
+
 ## Folder Structure
 optimized_edge_detect:
  - contains our usable version of edge detect
