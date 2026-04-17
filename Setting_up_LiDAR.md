@@ -3,7 +3,7 @@
 ## Prerequisites:
 
  - Have a windows laptop with WSL installed. If not installed, open your terminal as an administrator and run `wsl --install` to install it
- - Have your wsl terminal use ubuntu release 22.04 (specifically this version as newer versions do not support ROS2 Humble)
+ - Have a windows laptop and install wsl using ubuntu release 22.04 (specifically this version as newer versions do not support ROS2 Humble)
     - To set this up run: `wsl --install -d Ubuntu-22.04`, then `wsl --set-default Ubuntu-22.04`
     - Now when you run wsl you should be using the correct release
     - To verify this inside wsl run `lsb_release -a` and you should see ubuntu's release listed as 22.04
