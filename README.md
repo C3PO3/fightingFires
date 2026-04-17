@@ -1,6 +1,14 @@
 # [README](https://github.com/C3PO3/fightingFires/blob/main/README.md)
 
 ## Overview
+Instructions from Tufts Capstone Project Team (2025-2026) on how to set up software and hardware for the AI for FireFighters Project.
+
+This comprehensive guide should take you step by step through:
+   1. [Setting up a forward facing LiDAR]() to stream data frame by frame to be processed by other programs.
+   2. [Training an AI model using Pointnet++]() to detect walls, windows, doors, (AI TEAM ADD INFO HERE)
+   3. INSERT IMU INFO HERE
+
+The goal of this guide is after you follow these setup instructions you should be able to work on integrating these components together, improve the accuracy of the AI model, and have a good jumping off point for your senior project.
 
 ## Hardware Requirements
 To follow this setup guide make sure you have the following:
