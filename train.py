@@ -192,11 +192,11 @@ def main():
         fixed=True
     )
 
-    print("\n==== RAW DATASET DISTRIBUTION ====")
+    print("\nRAW DATASET DISTRIBUTION")
     train_dataset._print_class_distribution("Train (raw)")
     val_dataset._print_class_distribution("Val (raw)")
 
-    print("\n==== SAMPLED BLOCK DISTRIBUTION ====")
+    print("\nSAMPLED BLOCK DISTRIBUTION")
     train_dataset.estimate_block_distribution(num_samples=200)
     val_dataset.estimate_block_distribution(num_samples=200)
 
@@ -216,16 +216,13 @@ def main():
         drop_last=False
     )
 
-    # infer number of classes
     num_classes = 13
     class_weights = get_class_weights(train_label_paths, num_classes, device)
 
-    # infer input feature dimension
     sample_points, _ = train_dataset[0]
     in_channels = sample_points.shape[1]
     # print("Input channels:", in_channels)
 
-    # model / loss / optimizer
     model = PointNet2SemSeg(in_channels=in_channels, num_classes=num_classes).to(device)
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
