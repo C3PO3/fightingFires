@@ -161,23 +161,6 @@ class PointCloudDataset(Dataset):
     
 
     def _augment(self, points):
-        """
-        Simple augmentation on xyz only.
-        """
-        # random rotation around z-axis
-        # theta = np.random.uniform(0, 2 * np.pi)
-        # cosval = np.cos(theta)
-        # sinval = np.sin(theta)
-        # rotation_matrix = np.array([
-        #     [cosval, -sinval, 0],
-        #     [sinval,  cosval, 0],
-        #     [0,       0,      1]
-        # ], dtype=np.float32)
-
-        # points = points @ rotation_matrix.T
-
-        # # small jitter
-        # jitter = np.random.normal(0, 0.01, size=points.shape).astype(np.float32)
-        # points = points + jitter
+        # Augmentation
 
         return points
