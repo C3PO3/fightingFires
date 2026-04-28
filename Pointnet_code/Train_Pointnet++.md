@@ -1,6 +1,6 @@
 # Overview
 This project focuses on semantic segmentation of 3D environments using point cloud data.
-The goal is to identify structural elements (e.g., walls, floors, doors) to assist firefighter navigation and scene understanding.
+The goal is to identify structural elements (e.g., walls, floors, doors) to assist firefighter under low-visibility environment.
 
 # Setup Environment: 
 pip install numpy torch
