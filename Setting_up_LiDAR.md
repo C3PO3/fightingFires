@@ -1,4 +1,4 @@
-# How to connect RoboSense LiDAR to your Windows laptop
+# How to connect and use a RoboSense LiDAR with a Windows laptop
 
 ## Prerequisites:
 
@@ -19,11 +19,11 @@ Gateway: 192.168.1.1
 Preferred DNS: 8.8.8.8
 DNS over HTTPS: Off
 
-Note that you may have trouble changing the IP address if the router on your home network uses the same subnet mask. I ran into this issue, so I went to on-campus buildings and used Tufts_Secure when working with the LiDAR.
+Note that you may have trouble changing the IP address if your home network is using the same IP range (192.168.1.xxx). I ran into this issue, so I went to on-campus buildings and used Tufts_Secure when working with the LiDAR.
 
-3. Plug in the lidar into the ethernet port (or adapter)
-4. As a sanity check open wireshark and click ethernet (or ethernet 2) you should see packets flowing in from the LiDAR to destination 192.168.1.102.
-5. [Install rslidar_sdk](https://github.com/RoboSense-LiDAR/rslidar_sdk) follow the instructions in the readme. Make sure you install ROS2 humble when it gives you the option of which version of ROS2 to install.
+3. Plug in the lidar into the ethernet port (or adapter).
+4. As a sanity check open wireshark and click ethernet (or ethernet 2). You should see packets flowing in from the LiDAR to destination 192.168.1.102.
+5. [Install rslidar_sdk](https://github.com/RoboSense-LiDAR/rslidar_sdk) by following the instructions in the readme. Make sure you [install ROS2 humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html) in step 3 when it asks you to install ROS or ROS2.
  - NOTE: Before building, edit src/rslidar_sdk/config/config.yaml file to make sure LiDAR model is right: RSE1 Check that msop_port and difop_port are right: 
    msop_port: 6699              #  Msop port of lidar
    difop_port: 7788             #  Difop port of lidar
