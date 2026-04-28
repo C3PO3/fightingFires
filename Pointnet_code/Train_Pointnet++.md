@@ -22,8 +22,8 @@ pip install numpy torch
 semantic.obj (from Stanford 2D-3D-Semantics Dataset)
     ↓
 preprocess.py
-    ├── uses parse_file.py to extract vertices, faces, and labels
-    └── samples points from labeled mesh faces
+    ├── uses parse_file.py to extract vertices, faces, and labels from obj file
+    └── samples points from the labeled faces
     ↓
 points.npy + labels.npy
     ↓
