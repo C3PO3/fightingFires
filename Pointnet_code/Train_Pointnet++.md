@@ -5,12 +5,15 @@ The goal is to identify structural elements (e.g., walls, floors, doors) to assi
 # Setup Environment: 
 pip install numpy torch
 
-# Project Structure
+## Project Structure
+
+```text
 ├── dataset.py       # Block sampling
 ├── model.py         # PointNet++ model
 ├── parse_file.py    # Parse semantic .obj files
 ├── preprocess.py    # Convert mesh to point cloud
 ├── train.py         # Training pipeline
+```
 
 
 # Pipeline Overview
