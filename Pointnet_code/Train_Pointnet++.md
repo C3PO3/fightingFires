@@ -16,24 +16,28 @@ pip install numpy torch
 ```
 
 
-# Pipeline Overview
-semantic.obj(from Stanford 2D-3D-Semantics Dataset)
-    ↓ 
+## Pipeline Overview
+
+```text
+semantic.obj (from Stanford 2D-3D-Semantics Dataset)
+    ↓
 parse_file.py
-    ↓ 
+    ↓
 mesh (vertices, faces, labels)
-    ↓ 
+    ↓
 preprocess.py
-    ↓ 
+    ↓
 points.npy + labels.npy
-    ↓ 
+    ↓
 dataset.py
-    ↓ 
+    ↓
 random blocks
     ↓
-model.py 
-    ↓ 
-train.py 
-    ↓ 
+model.py
+    ↓
+train.py
+    ↓
 best_model.pth
+```
+
 
