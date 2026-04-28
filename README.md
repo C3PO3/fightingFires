@@ -5,7 +5,7 @@ Instructions from Tufts Capstone Project Team (2025-2026) on how to set up softw
 
 This comprehensive guide should take you step by step through:
    1. [Setting up a forward facing LiDAR](https://github.com/C3PO3/fightingFires/blob/main/Setting_up_LiDAR.md) to stream data frame by frame to be processed by other programs.
-   2. [Training an AI model using Pointnet++](https://github.com/C3PO3/fightingFires/blob/main/Train_Pointnet%2B%2B.md) to do semantic segmentation for indoor environments. There are 13 classes in total, including beam, board, bookcase, ceiling, chair, clutter, column, door, floor, sofa, table, wall, and window.
+   2. [Training an AI model using Pointnet++](https://github.com/C3PO3/fightingFires/blob/main/Pointnet_code/Train_Pointnet%2B%2B.md) to do semantic segmentation for indoor environments. There are 13 classes in total, including beam, board, bookcase, ceiling, chair, clutter, column, door, floor, sofa, table, wall, and window.
    3. INSERT IMU INFO HERE
 
 The goal of this guide is after you follow these setup instructions you should be able to work on integrating these components together, improve the accuracy of the AI model, and have a good jumping off point for your senior project.
