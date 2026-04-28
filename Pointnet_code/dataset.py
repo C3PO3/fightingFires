@@ -9,13 +9,19 @@ class PointCloudDataset(Dataset):
         points.npy : [N, 3]
         labels.npy : [N]
 
-    Train mode:
-        - randomly sample one block each time __getitem__ is called
+    Instead of feeding the entire scene into the model, this dataset
+    dynamically samples local blocks from one or more scenes.
 
-    Fixed mode:
-        - pre-sample all blocks once in __init__
-        - __getitem__ always returns the cached block
+    Modes:
+    - Train mode (fixed=False):
+        randomly samples a new block every time
+    - Fixed mode (fixed=True):
+        pre-samples blocks once for consistent evaluation
     """
+
+    # Load all scenes into memory
+    # Each scene contains full point cloud + labels
+    # We also store XY bounds to enable random block sampling
     def __init__(
         self,
         scene_paths,
@@ -93,7 +99,7 @@ class PointCloudDataset(Dataset):
 
     def __getitem__(self, idx):
         """
-        Returns:
+        Returns one training block.
             block_points: FloatTensor [num_points, 3]
             block_labels: LongTensor  [num_points]
         """
@@ -111,7 +117,20 @@ class PointCloudDataset(Dataset):
         return block_points, block_labels
 
     def _sample_block(self):
-        # First randomly choose a scene, than randomly sample a block from the chosen scene
+        """
+        Sample one local block from a random scene.
+
+        Steps:
+        1. Randomly select a scene
+        2. Randomly select a square region in XY plane
+        3. Collect points inside that region
+        4. Ensure enough points exist
+        5. Sample points to fixed size
+
+        Returns:
+            block_features: [num_points, 3]
+            block_labels:   [num_points]
+        """
         for _ in range(100):
             scene = self.scenes[np.random.randint(len(self.scenes))]
 
@@ -156,7 +175,6 @@ class PointCloudDataset(Dataset):
 
         raise RuntimeError(
             "Failed to sample a valid block after 100 attempts. "
-            "Try reducing min_points or increasing block_size."
         )
     
 
