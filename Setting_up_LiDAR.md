@@ -50,7 +50,7 @@ source ~/lidar_ws/install/setup.bash
 
 ## Instructions for capturing frames in c++
 1. Create a new directory inside src called frame_inspector. This will be the name of the package we are creating.
-2. Copy the files and file structure from the frame_inspector folder of this repo into your frame_inspector directory. The file structure should look like this:
+2. Copy the files and file structure from the frame_inspector folder of this repo into your frame_inspector directory. Now the file structure of your lidar workspace should look like this:
 ```
 lidar_ws
 ├── build
