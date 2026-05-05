@@ -1,6 +1,9 @@
 # Overview
-This project focuses on semantic segmentation of 3D environments using point cloud data.
+This project focuses on semantic segmentation of 3D environments using pointcloud data.
 The goal is to identify structural elements (e.g., walls, floors, doors) to assist firefighter under low-visibility environment.
+
+# Accessing Dataset
+To get the data that we used to train the model, please request access to the (Stanford 2D-3D-Semantics Dataset)[https://sdss.redivis.com/datasets/f304-a3vhsvcaf]. There is a button to "Apply for access".
 
 # Setup Environment: 
 pip install numpy torch
