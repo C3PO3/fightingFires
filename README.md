@@ -18,4 +18,5 @@ To follow this setup guide make sure you have the following:
  - VN-100 IMU - used for tracking location of the LiDAR needed for processing multiple frames at once.
  - Have a device with at least 1 TB of data to store training dataset if using the Stanford pointcloud dataset.
  - Have access to the HPC cluster to train your model using GPUs.
+
 Note: In Dr. Panetta's lab they should have the same LiDAR and IMU that we used for you to borrow.
